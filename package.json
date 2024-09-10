@@ -1,0 +1,15 @@
+{
+  "name": "com.hryooba.library.kinect",
+  "displayName": "HRYoobaLibrary.Kinect",
+  "version": "1.0.0",
+  "unity": "2022.3",
+  "description": "Unity HRYooba Library\nKinect",
+  "author": {
+    "name": "HRYooba"
+  },
+  "type": "library",
+  "dependencies": {
+    "org.nuget.r3": "1.2.8",
+    "com.hryooba.library" : "2.0.13"
+  }
+}

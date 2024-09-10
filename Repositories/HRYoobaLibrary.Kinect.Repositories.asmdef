@@ -1,0 +1,16 @@
+{
+    "name": "HRYoobaLibrary.Kinect.Repositories",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0021969b03a844645ad5544ec80c67ec"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

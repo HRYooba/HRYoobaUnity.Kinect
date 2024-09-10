@@ -1,0 +1,21 @@
+{
+    "name": "HRYoobaLibrary.Kinect.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:4840d095db1db884ebed2291678c1a43",
+        "GUID:0021969b03a844645ad5544ec80c67ec",
+        "GUID:91b8dbf94ce597a489fb16724b7f04e5",
+        "GUID:7b172bd445b496c4684a73ee39f3ac70",
+        "GUID:cc25f5869d1d97247b02b07c9c84bfb6",
+        "GUID:e3eb5c03f3f123e4ca2601b6a1b70732"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

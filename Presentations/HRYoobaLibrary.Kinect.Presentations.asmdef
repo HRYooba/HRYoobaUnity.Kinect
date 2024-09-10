@@ -1,0 +1,20 @@
+{
+    "name": "HRYoobaLibrary.Kinect.Presentations",
+    "rootNamespace": "",
+    "references": [
+        "GUID:4840d095db1db884ebed2291678c1a43",
+        "GUID:0021969b03a844645ad5544ec80c67ec",
+        "GUID:2bafac87e7f4b9b418d9448d219b01ab",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:77221876cc6b8244180b96e320b1bcd4"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,22 @@
+{
+    "name": "HRYoobaLibrary.Kinect.Rfilkov",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ead9a344095ef7b4db909c929c47b4cf",
+        "GUID:0021969b03a844645ad5544ec80c67ec",
+        "GUID:7b172bd445b496c4684a73ee39f3ac70",
+        "GUID:91b8dbf94ce597a489fb16724b7f04e5",
+        "GUID:cc25f5869d1d97247b02b07c9c84bfb6",
+        "GUID:9c2df990b46524a48b578cdacf9d4bbb",
+        "GUID:77221876cc6b8244180b96e320b1bcd4"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

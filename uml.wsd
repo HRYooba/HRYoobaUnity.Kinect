@@ -1,0 +1,249 @@
+@startuml
+skinparam groupInheritance 2
+
+interface IKinectManager
+{
+    + UserData[] GetAllUserData()
+    + AreaData[] GetAllAreaData()
+    + KinectData[] GetAllKinectData()
+    + UserData[] GetAllPrimaryUserData()
+    + UserData GetPrimaryUserData(string kinectId)
+    + ProvideTextures[] GetAllKinectTextures()
+    + ProvideTextures GetKinectTextures(string kinectId)
+}
+
+package Core_Entities
+{
+    class AreaData
+    {
+        + AreaData(int id, Vector3 position, float radius)
+        + int Id { get; }
+        + Vector3 Position { get; }
+        + float Radius { get; }
+    }
+
+    class KinectData
+    {
+        + KinectData(string id, Vector3 position, Vector3 eulerAngles, float minDepthDistance, float maxDepthDistance)
+        + string Id { get; }
+        + Vector3 Position { get; }
+        + Vector3 EulerAngles { get; }
+        + float MinDepthDistance { get; }
+        + float MaxDepthDistance { get; }
+    }
+
+    class UserData
+    {
+        + UserData(ulong id, Vector3 position, Quaternion rotation, JointData[] joints)
+        + ulong Id { get; }
+        + Vector3 Position { get; }
+        + Quaternion Rotation { get; }
+        + JointData[] Joints { get; }
+    }
+
+    class JointData
+    {
+        + JointData(JointType type, Vector3 position, Quaternion rotation, bool isTracking)
+        + bool IsTracking { get; }
+        + Vector3 Position { get; }
+        + Quaternion Rotation { get; }
+    }
+
+    UserData o-- JointData
+}
+
+package Core_Repositories
+{
+    interface IAreaDataRepository
+    {
+        + void Add(AreaData areaData)
+        + void Update(AreaData areaData)
+        + void Remove(int id)
+        + void Clear()
+        + AreaData Get(int id)
+        + AreaData[] GetAll()
+    }
+
+    interface IKinectDataRepository
+    {
+        + void Add(KinectData kinectData)
+        + void Update(KinectData kinectData)
+        + void Remove(string id)
+        + void Clear()
+        + KinectData Get(string id)
+        + KinectData[] GetAll()
+    }
+
+    interface IUserDataRepository
+    {
+        + void Add(UserData userData)
+        + void Update(UserData userData)
+        + void Remove(ulong id)
+        + void Clear()
+        + UserData Get(ulong id)
+        + UserData[] GetAll()
+    }
+
+    AreaData <.... IAreaDataRepository
+    KinectData <.... IKinectDataRepository
+    UserData <.... IUserDataRepository
+}
+
+package Core_Services
+{
+    package Area
+    {
+        interface IAreaDataFileSaver
+        {
+            + void Save()
+        }
+
+        interface IAreaDataUpdater
+        {
+            void Update(AreaData areaData)
+        }
+
+    }
+
+    package Kinect
+    {
+        interface IKinectDataFileSaver
+        {
+            + void Save()
+        }
+
+        interface IKinectDataUpdater
+        {
+            void Update(KinectData kinectData)
+        }
+
+        interface IKinectService
+        {
+            + UserData PrimaryUserData { get; }
+        }
+
+        interface IKinectTextureProvider
+        {
+            + Texture ColorTexture { get; }
+            + Texture DepthTexture { get; }
+            + Texture DepthMappedColorTexture { get; }
+            + Texture BodyIndexTexture { get; }
+            + Texture PrimaryUserTexture { get; }
+            + Texture PointCloudTexture { get; }
+        }
+
+        interface IKinectState
+        {
+            + bool IsVaild { get; }
+        }
+    }
+
+    package User
+    {
+        interface IUserDataNoifier
+
+        interface IUserDataAddNotifier
+        {
+            + Observable<UserData> OnUserDataAddedObservable { get; }
+        }
+
+        interface IUserDataUpdateNotifier
+        {
+            + Observable<UserData> OnUserDataUpdatedObservable { get; }
+        }
+
+        interface IUserDataRemoveNotifier
+        {
+            + Observable<UserData> OnUserDataRemovedObservable { get; }
+        }
+    }
+
+    IKinectTextureProvider <|.. IKinectService
+    IKinectState <|.. IKinectService
+
+    IUserDataAddNotifier <|.. IUserDataNoifier
+    IUserDataUpdateNotifier <|.. IUserDataNoifier
+    IUserDataRemoveNotifier <|.. IUserDataNoifier
+
+    AreaData <.... IAreaDataUpdater
+    KinectData <.... IKinectDataUpdater
+    UserData <.... IUserDataNoifier
+}
+
+package Repositories
+{
+    class AreaDataRepository
+    class KinectDataRepository
+    class UserDataRepository
+
+    IAreaDataRepository <|.... AreaDataRepository
+    IKinectDataRepository <|.... KinectDataRepository
+    IUserDataRepository <|.... UserDataRepository
+}
+
+package Services
+{
+    class AreaDataJsonManager
+    class KinectDataJsonManager
+    class UserDataMonitor
+
+    IAreaDataFileSaver <|..... AreaDataJsonManager
+    IAreaDataUpdater <|..... AreaDataJsonManager
+
+    IKinectDataFileSaver <|..... KinectDataJsonManager
+    IKinectDataUpdater <|..... KinectDataJsonManager
+
+    IUserDataNoifier <|..... UserDataMonitor
+
+    IAreaDataRepository --o AreaDataJsonManager
+    IKinectDataRepository --o KinectDataJsonManager
+    IUserDataRepository --o UserDataMonitor
+}
+
+package Presentations
+{
+    package Areas
+    {
+        class AreaPresenter
+
+        IAreaDataFileSaver ------o AreaPresenter
+        IAreaDataUpdater ------o AreaPresenter
+    }
+
+    package Kinects
+    {
+        class KinectPresenter
+
+        IKinectDataFileSaver ------o KinectPresenter
+        IKinectDataUpdater ------o KinectPresenter
+        IKinectState ------o KinectPresenter
+    }
+
+    package Users
+    {
+        class UserPresenter
+
+        IUserDataNoifier ------o UserPresenter
+    }
+}
+
+package Rfilkov
+{
+    class RfilkovKinectManager
+    class RfilkovKinectService
+
+    IKinectService <|...... RfilkovKinectService
+    IAreaDataRepository ------o RfilkovKinectService
+    IKinectDataRepository ------o RfilkovKinectService
+    IUserDataRepository ------o RfilkovKinectService
+    IKinectManager <|.. RfilkovKinectManager
+    RfilkovKinectManager *-- RfilkovKinectService
+    RfilkovKinectManager *-- AreaDataRepository
+    RfilkovKinectManager *-- KinectDataRepository
+    RfilkovKinectManager *-- UserDataRepository
+    RfilkovKinectManager *-- UserDataMonitor
+    RfilkovKinectManager *-- AreaDataJsonManager
+    RfilkovKinectManager *-- KinectDataJsonManager
+}
+
+@enduml
