@@ -6,7 +6,7 @@ ProjectSetting/PackageManagerから以下のScopeRegistriesを設定
 - URL: `https://package.openupm.com`
 - Scope(s): 
   - `com.hryooba`
-  - `com.cysha
+  - `com.cysha`
   - `org.nuget`
 
 ### 1.2 インストール
