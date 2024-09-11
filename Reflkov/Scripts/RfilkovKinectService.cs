@@ -263,8 +263,7 @@ namespace HRYooba.Kinect.Rfilkov
 
             var rotation = _kinectManager.GetUserOrientation(userId, false);
             rotation = new Quaternion(rotation.x, rotation.y, -rotation.z, -rotation.w);
-            rotation = rotation * sensorTransform.rotation * sensorTransform.rotation;
-            rotation = rotation * Quaternion.Euler(0, 180, 0);
+            rotation = sensorTransform.rotation * rotation * Quaternion.Euler(0, 180, 0);
 
             var joints = bodyData.joint.Select(data => ConvertToJointData(userId, data)).ToArray();
 
@@ -282,17 +281,21 @@ namespace HRYooba.Kinect.Rfilkov
 
             var isTracked = _kinectManager.IsJointTracked(userId, jointData.jointType);
 
-            var index = jointData.jointType;
-            var position = _kinectManager.GetJointKinectPosition(userId, index, true);
+            var joint = jointData.jointType;
+            var position = _kinectManager.GetJointKinectPosition(userId, joint, true);
             position.x *= -1;
             position = sensorTransform.TransformPoint(position);
 
-            var rotation = _kinectManager.GetJointOrientation(userId, index, false);
-            rotation = new Quaternion(rotation.x, rotation.y, -rotation.z, -rotation.w);
-            rotation = rotation * sensorTransform.rotation * sensorTransform.rotation;
-            rotation = rotation * Quaternion.Euler(0, 180, 0);
+            var rotation = _kinectManager.GetJointOrientation(userId, joint, false);
+            var mirrorRotation = rotation;
 
-            return new JointData((JointData.JointType)index, isTracked, position, rotation);
+            rotation = new Quaternion(rotation.x, rotation.y, -rotation.z, -rotation.w);
+            rotation = sensorTransform.rotation * rotation * Quaternion.Euler(0, 180, 0);
+            rotation = Quaternion.Euler(0, 180, 0) * rotation;
+
+            mirrorRotation = Quaternion.Euler(0, 180, 0) * mirrorRotation;
+
+            return new JointData((JointData.JointType)joint, isTracked, position, rotation, mirrorRotation);
         }
 
         private class BodyByBodyIndexTexture : IDisposable
