@@ -1,7 +1,7 @@
 {
   "name": "com.hryooba.library.kinect",
   "displayName": "HRYoobaLibrary.Kinect",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "unity": "2022.3",
   "description": "Unity HRYooba Library\nKinect",
   "author": {
