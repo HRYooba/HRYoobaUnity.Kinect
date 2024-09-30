@@ -18,7 +18,7 @@ namespace HRYooba.Kinect.Editor
             Selection.activeObject = go;
         }
 
-        [MenuItem("GameObject/HRYoobaKinect/RfilkovKinectManager", false, 21)]
+        [MenuItem("GameObject/HRYooba/RfilkovKinectManager", false, 21)]
         private static void CreateRfilkovKinectManager(MenuCommand menuCommand)
         {
             InstantiateGameObject(menuCommand, "RfilkovKinectManager");

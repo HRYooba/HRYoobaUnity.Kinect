@@ -1,16 +1,13 @@
 {
-    "name": "HRYoobaLibrary.Kinect.Services",
+    "name": "HRYooba.Kinect.Core",
     "rootNamespace": "",
-    "references": [
-        "GUID:4840d095db1db884ebed2291678c1a43",
-        "GUID:0021969b03a844645ad5544ec80c67ec"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": false,
+    "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false
