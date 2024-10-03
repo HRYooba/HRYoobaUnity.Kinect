@@ -175,6 +175,8 @@ namespace HRYooba.Kinect.Rfilkov
             _sensorData.sensorInterface.SetSensorToWorldMatrix(position, rotation, true);
             _depthSensor.minDepthDistance = minDepthDistance;
             _depthSensor.maxDepthDistance = maxDepthDistance;
+
+            _bodyByBodyIndexTexture.SetDepthDistance(minDepthDistance, maxDepthDistance);
         }
 
         private void UpdateUserDataRepository()
@@ -305,17 +307,18 @@ namespace HRYooba.Kinect.Rfilkov
             public Texture Texture => _texture;
 
             private Material _material;
+            private float _minDepthDistance;
+            private float _maxDepthDistance;
 
             public BodyByBodyIndexTexture(int width, int height, float minDepthDistance, float maxDepthDistance)
             {
+                _minDepthDistance = minDepthDistance;
+                _maxDepthDistance = maxDepthDistance;
+
                 _texture = new RenderTexture(width, height, 0, RenderTextureFormat.Default);
 
                 var shader = Shader.Find("HRYooba/Kinect/UserBodyImageByBodyIndexShader");
                 _material = new Material(shader);
-                _material.SetInt("_TexResX", _texture.width);
-                _material.SetInt("_TexResY", _texture.height);
-                _material.SetInt("_MinDepth", (int)(minDepthDistance * 1000f));
-                _material.SetInt("_MaxDepth", (int)(maxDepthDistance * 1000f));
             }
 
             public void Dispose()
@@ -333,10 +336,20 @@ namespace HRYooba.Kinect.Rfilkov
                 }
             }
 
+            public void SetDepthDistance(float minDepthDistance, float maxDepthDistance)
+            {
+                _minDepthDistance = minDepthDistance;
+                _maxDepthDistance = maxDepthDistance;
+            }
+
             public void Update(int bodyIndex, ComputeBuffer bodyIndexBuffer)
             {
                 _material.SetBuffer("_BodyIndexMap", bodyIndexBuffer);
                 _material.SetInt("_BodyIndex", bodyIndex);
+                _material.SetInt("_TexResX", _texture.width);
+                _material.SetInt("_TexResY", _texture.height);
+                _material.SetInt("_MinDepth", (int)(_minDepthDistance * 1000f));
+                _material.SetInt("_MaxDepth", (int)(_maxDepthDistance * 1000f));
 
                 Graphics.Blit(null, _texture, _material);
             }
