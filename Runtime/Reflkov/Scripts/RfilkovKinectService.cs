@@ -264,6 +264,7 @@ namespace HRYooba.Kinect.Rfilkov
             var rotation = _kinectManager.GetUserOrientation(userId, false);
             rotation = new Quaternion(rotation.x, rotation.y, -rotation.z, -rotation.w);
             rotation = sensorTransform.rotation * rotation * Quaternion.Euler(0, 180, 0);
+            rotation = Quaternion.Euler(0, 180, 0) * rotation;
 
             var joints = bodyData.joint.Select(data => ConvertToJointData(userId, data)).ToArray();
 
