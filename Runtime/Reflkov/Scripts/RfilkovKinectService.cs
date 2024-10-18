@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using R3;
 using com.rfilkov.kinect;
@@ -50,7 +49,6 @@ namespace HRYooba.Kinect.Rfilkov
             _kinectManager = KinectManager.Instance;
             if (!TryGetSensorData(kinectId, out var sensorData))
             {
-                OutputSensorListLog();
                 Debug.LogError($"[RfilkovKinectService] SensorData not found. SensorId: {kinectId}");
                 return;
             }
@@ -124,24 +122,6 @@ namespace HRYooba.Kinect.Rfilkov
 
             sensorData = null;
             return false;
-        }
-
-        private void OutputSensorListLog()
-        {
-            var log = new StringBuilder();
-            log.Append("[RfilkovKinectService] Find SensorList: ");
-
-            var sensorCount = _kinectManager.GetSensorCount();
-            if (sensorCount == 0) throw new InvalidOperationException("[RfilkovKinectService] Sensor not found.");
-
-            for (int i = 0; i < sensorCount; i++)
-            {
-                if (i != 0) log.Append(", ");
-
-                var data = _kinectManager.GetSensorData(i);
-                log.Append($"Sensor[{i}]:{data.sensorId}");
-            }
-            Debug.LogWarning(log);
         }
 
         private void PreUpdate()

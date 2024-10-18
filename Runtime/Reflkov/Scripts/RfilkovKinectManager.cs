@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using HRYooba.Kinect.Core;
 using HRYooba.Kinect.Core.Services;
@@ -8,6 +9,7 @@ using HRYooba.Kinect.Repositories;
 using HRYooba.Kinect.Presentations.Areas;
 using HRYooba.Kinect.Presentations.Kinects;
 using HRYooba.Kinect.Presentations.Users;
+using com.rfilkov.kinect;
 
 namespace HRYooba.Kinect.Rfilkov
 {
@@ -28,7 +30,7 @@ namespace HRYooba.Kinect.Rfilkov
 
         private readonly Dictionary<string, RfilkovKinectService> _rfilkovKinectServices = new();
 
-        public bool IsValid { get; private set; }
+        public bool Initialized { get; private set; }
 
         private void Awake()
         {
@@ -56,6 +58,11 @@ namespace HRYooba.Kinect.Rfilkov
                 _rfilkovKinectServices.Add(kinectData.Id, rfilkovKinectService);
             }
 
+            if (_rfilkovKinectServices.Count(_ => _.Value.IsValid) == 0)
+            {
+                OutputSensorListLog();
+            }
+
             _areaInitializer.Initialize(
                 _areaDataRepository,
                 _areaDataJsonManager,
@@ -73,7 +80,7 @@ namespace HRYooba.Kinect.Rfilkov
                 _userDataMonitor
             );
 
-            IsValid = true;
+            Initialized = true;
         }
 
         private void OnApplicationQuit() => OnDestory();
@@ -87,6 +94,24 @@ namespace HRYooba.Kinect.Rfilkov
                 rfilkovKinectService.Dispose();
             }
             _rfilkovKinectServices.Clear();
+        }
+
+        private void OutputSensorListLog()
+        {
+            var log = new StringBuilder();
+            log.Append("[RfilkovKinectManager] Find SensorList: ");
+
+            var sensorCount = KinectManager.Instance.GetSensorCount();
+            if (sensorCount == 0) return;
+
+            for (int i = 0; i < sensorCount; i++)
+            {
+                if (i != 0) log.Append(", ");
+
+                var data = KinectManager.Instance.GetSensorData(i);
+                log.Append($"Sensor[{i}]:{data.sensorId}");
+            }
+            Debug.LogWarning(log);
         }
 
         public UserData[] GetAllUserData()
@@ -111,9 +136,16 @@ namespace HRYooba.Kinect.Rfilkov
 
         public UserData GetPrimaryUserData(string kinectId = null)
         {
-            var kinectService = kinectId == null ? _rfilkovKinectServices.Values.First(k => k.IsValid) : _rfilkovKinectServices[kinectId];
+            if (kinectId == null) return null;
 
-            return kinectService.PrimaryUserData;
+            if (_rfilkovKinectServices.TryGetValue(kinectId, out var kinectService))
+            {
+                return kinectService.PrimaryUserData;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public ProvideTextures[] GetAllKinectTextures()
@@ -132,16 +164,23 @@ namespace HRYooba.Kinect.Rfilkov
 
         public ProvideTextures GetKinectTextures(string kinectId = null)
         {
-            var kinectService = kinectId == null ? _rfilkovKinectServices.Values.First(k => k.IsValid) : _rfilkovKinectServices[kinectId];
+            if (kinectId == null) return null;
 
-            return new ProvideTextures(
-                kinectService.ColorTexture,
-                kinectService.DepthTexture,
-                kinectService.DepthMappedColorTexture,
-                kinectService.BodyIndexTexture,
-                kinectService.PrimaryUserTexture,
-                kinectService.PointCloudTexture
-            );
+            if (_rfilkovKinectServices.TryGetValue(kinectId, out var kinectService))
+            {
+                return new ProvideTextures(
+                    kinectService.ColorTexture,
+                    kinectService.DepthTexture,
+                    kinectService.DepthMappedColorTexture,
+                    kinectService.BodyIndexTexture,
+                    kinectService.PrimaryUserTexture,
+                    kinectService.PointCloudTexture
+                );
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

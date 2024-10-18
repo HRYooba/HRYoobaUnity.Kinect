@@ -4,7 +4,6 @@ namespace HRYooba.Kinect
 {
     public interface IKinectManager
     {
-        bool IsValid { get; }
         UserData[] GetAllUserData();
         AreaData[] GetAllAreaData();
         KinectData[] GetAllKinectData();
