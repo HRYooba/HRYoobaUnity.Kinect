@@ -5,7 +5,7 @@ namespace HRYooba.Kinect.Editor
 {
     public class MenuItemKinect
     {
-        private static void InstantiateGameObject(MenuCommand menuCommand, string path)
+        private static GameObject InstantiateGameObject(MenuCommand menuCommand, string path)
         {
             // Create a custom game object
             var obj = Resources.Load<GameObject>(path);
@@ -16,12 +16,29 @@ namespace HRYooba.Kinect.Editor
             // Register the creation in the undo system
             Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
             Selection.activeObject = go;
+
+            return go;
         }
 
         [MenuItem("GameObject/HRYooba/RfilkovKinectManager", false, 21)]
         private static void CreateRfilkovKinectManager(MenuCommand menuCommand)
         {
-            InstantiateGameObject(menuCommand, "RfilkovKinectManager");
+            var obj = InstantiateGameObject(menuCommand, "RfilkovKinectManager");
+
+            var rendererComponents = obj.GetComponentsInChildren<Renderer>();
+            foreach (var renderer in rendererComponents)
+            {
+                var materials = renderer.sharedMaterials;
+                Material[] newMaterials = new Material[materials.Length];
+                for (int i = 0; i < materials.Length; i++)
+                {
+                    if (materials[i] != null)
+                    {
+                        newMaterials[i] = new Material(materials[i]); // Create a new instance of each material
+                    }
+                }
+                renderer.sharedMaterials = newMaterials;
+            }
         }
     }
 }
