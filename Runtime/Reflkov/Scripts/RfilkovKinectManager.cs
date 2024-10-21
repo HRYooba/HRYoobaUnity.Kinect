@@ -136,15 +136,30 @@ namespace HRYooba.Kinect.Rfilkov
 
         public UserData GetPrimaryUserData(string kinectId = null)
         {
-            if (kinectId == null) return null;
-
-            if (_rfilkovKinectServices.TryGetValue(kinectId, out var kinectService))
             {
-                return kinectService.PrimaryUserData;
+                if (kinectId == null)
+                {
+                    var kinectService = _rfilkovKinectServices.Values.FirstOrDefault(_ => _.IsValid);
+                    if (kinectService != null)
+                    {
+                        return kinectService.PrimaryUserData;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
             }
-            else
+
             {
-                return null;
+                if (_rfilkovKinectServices.TryGetValue(kinectId, out var kinectService))
+                {
+                    return kinectService.PrimaryUserData;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 
@@ -164,22 +179,44 @@ namespace HRYooba.Kinect.Rfilkov
 
         public ProvideTextures GetKinectTextures(string kinectId = null)
         {
-            if (kinectId == null) return null;
-
-            if (_rfilkovKinectServices.TryGetValue(kinectId, out var kinectService))
             {
-                return new ProvideTextures(
-                    kinectService.ColorTexture,
-                    kinectService.DepthTexture,
-                    kinectService.DepthMappedColorTexture,
-                    kinectService.BodyIndexTexture,
-                    kinectService.PrimaryUserTexture,
-                    kinectService.PointCloudTexture
-                );
+                if (kinectId == null)
+                {
+                    var kinectService = _rfilkovKinectServices.Values.FirstOrDefault(_ => _.IsValid);
+                    if (kinectService != null)
+                    {
+                        return new ProvideTextures(
+                            kinectService.ColorTexture,
+                            kinectService.DepthTexture,
+                            kinectService.DepthMappedColorTexture,
+                            kinectService.BodyIndexTexture,
+                            kinectService.PrimaryUserTexture,
+                            kinectService.PointCloudTexture
+                        );
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
             }
-            else
+
             {
-                return null;
+                if (_rfilkovKinectServices.TryGetValue(kinectId, out var kinectService))
+                {
+                    return new ProvideTextures(
+                        kinectService.ColorTexture,
+                        kinectService.DepthTexture,
+                        kinectService.DepthMappedColorTexture,
+                        kinectService.BodyIndexTexture,
+                        kinectService.PrimaryUserTexture,
+                        kinectService.PointCloudTexture
+                    );
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
     }
