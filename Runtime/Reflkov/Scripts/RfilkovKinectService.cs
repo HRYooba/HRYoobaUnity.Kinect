@@ -297,7 +297,8 @@ namespace HRYooba.Kinect.Rfilkov
 
                 _texture = new RenderTexture(width, height, 0, RenderTextureFormat.Default);
 
-                var shader = Shader.Find("HRYooba/Kinect/UserBodyImageByBodyIndexShader");
+                var shader = Resources.Load<Shader>("UserBodyImageByBodyIndexShader");
+                // var shader = Shader.Find("HRYooba/Kinect/UserBodyImageByBodyIndexShader");
                 _material = new Material(shader);
             }
 
