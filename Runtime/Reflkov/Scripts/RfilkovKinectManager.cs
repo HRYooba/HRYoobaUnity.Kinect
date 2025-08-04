@@ -163,6 +163,29 @@ namespace HRYooba.Kinect.Rfilkov
             }
         }
 
+        public UserData GetUserData(int areaId)
+        {
+            var areaData = _areaDataRepository.Get(areaId);
+            if (areaData == null) return null;
+
+            var areaPos = new Vector2(areaData.Position.x, areaData.Position.z);
+            var allUserData = _userDataRepository.GetAll();
+            var areaInUserData = new List<UserData>();
+            foreach (var userData in allUserData)
+            {
+                var userPos = new Vector2(userData.Position.x, userData.Position.z);
+                if (Vector2.Distance(areaPos, userPos) < areaData.Radius)
+                {
+                    areaInUserData.Add(userData);
+                }
+            }
+
+            // area posから一番近い人を返す
+            if (areaInUserData.Count == 0) return null;
+            var closestUserData = areaInUserData.OrderBy(user => Vector2.Distance(areaPos, new Vector2(user.Position.x, user.Position.z))).FirstOrDefault();
+            return closestUserData;
+        }
+
         public ProvideTextures[] GetAllKinectTextures()
         {
             return _rfilkovKinectServices.Values

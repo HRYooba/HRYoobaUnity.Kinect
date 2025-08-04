@@ -9,6 +9,7 @@ namespace HRYooba.Kinect
         KinectData[] GetAllKinectData();
         UserData[] GetAllPrimaryUserData();
         UserData GetPrimaryUserData(string kinectId = null);
+        UserData GetUserData(int areaId);
         ProvideTextures[] GetAllKinectTextures();
         ProvideTextures GetKinectTextures(string kinectId = null);
     }
