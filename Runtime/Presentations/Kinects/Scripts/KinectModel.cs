@@ -9,10 +9,6 @@ namespace HRYooba.Kinect.Presentations.Kinects
         public string Id { get; }
         public int BodyTrackingSensorOrientation { get; }
 
-        private readonly ReactiveProperty<bool> _isValid = new();
-        public ReadOnlyReactiveProperty<bool> IsValid => _isValid;
-        public void SetIsValid(bool value) => _isValid.Value = value;
-
         private readonly ReactiveProperty<Vector3> _position = new();
         public ReadOnlyReactiveProperty<Vector3> Position => _position;
         public void SetPosition(Vector3 value) => _position.Value = value;
@@ -52,7 +48,6 @@ namespace HRYooba.Kinect.Presentations.Kinects
         public void Dispose()
         {
             _position.Dispose();
-            _isValid.Dispose();
             _eulerAngles.Dispose();
             _minDepthDistance.Dispose();
             _maxDepthDistance.Dispose();

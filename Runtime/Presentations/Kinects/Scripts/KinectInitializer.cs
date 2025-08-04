@@ -23,7 +23,7 @@ namespace HRYooba.Kinect.Presentations.Kinects
             {
                 var presenter = Instantiate(_kinectPresenterPrefab, transform);
                 var kinectService = kinectServices[kinectData.Id];
-                presenter.Construct(kinectData, kinectDataFileSaver, kinectDataUpdater, kinectService, kinectService, _worldRoot, _operationRoot);
+                presenter.Construct(kinectData, kinectDataFileSaver, kinectDataUpdater, kinectService, _worldRoot, _operationRoot);
             }
         }
     }

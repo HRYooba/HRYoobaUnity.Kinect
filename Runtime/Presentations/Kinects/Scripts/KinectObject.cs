@@ -12,11 +12,6 @@ namespace HRYooba.Kinect.Presentations.Kinects
             _idText.text = $"ID:{id}";
         }
 
-        public void SetIsValid(bool isValid)
-        {
-            _idText.color = isValid ? Color.white : Color.red;
-        }
-
         public void SetPosition(Vector3 position)
         {
             transform.localPosition = position;

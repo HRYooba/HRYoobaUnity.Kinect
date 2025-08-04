@@ -53,11 +53,6 @@ namespace HRYooba.Kinect.Presentations.Kinects
             RotateTexture(orientation, _pointCloudImage);
         }
 
-        public void SetIsValid(bool isValid)
-        {
-            _infoText.color = isValid ? Color.white : Color.red;
-        }
-
         public void SetColorImage(Texture texture)
         {
             _colorImage.texture = texture;

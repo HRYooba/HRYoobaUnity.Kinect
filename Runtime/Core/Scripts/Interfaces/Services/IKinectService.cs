@@ -2,9 +2,9 @@ using UnityEngine;
 
 namespace HRYooba.Kinect.Core.Services
 {
-    public interface IKinectService : IKinectTextureProvider, IKinectState
+    public interface IKinectService : IKinectTextureProvider
     {
-        public UserData PrimaryUserData { get; }
+        
     }
 
     public interface IKinectTextureProvider
@@ -38,10 +38,5 @@ namespace HRYooba.Kinect.Core.Services
         /// PointCloud用のテクスチャ (RGBAFloat)
         /// </summary>
         public Texture PointCloudTexture { get; }
-    }
-
-    public interface IKinectState
-    {
-        bool IsValid { get; }
     }
 }

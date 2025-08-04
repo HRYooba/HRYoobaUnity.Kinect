@@ -7,8 +7,6 @@ namespace HRYooba.Kinect
         UserData[] GetAllUserData();
         AreaData[] GetAllAreaData();
         KinectData[] GetAllKinectData();
-        UserData[] GetAllPrimaryUserData();
-        UserData GetPrimaryUserData(string kinectId = null);
         UserData GetUserData(int areaId);
         ProvideTextures[] GetAllKinectTextures();
         ProvideTextures GetKinectTextures(string kinectId = null);

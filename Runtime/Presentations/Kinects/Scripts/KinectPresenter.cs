@@ -23,21 +23,21 @@ namespace HRYooba.Kinect.Presentations.Kinects
         private IKinectDataFileSaver _kinectDataFileSaver;
         private IKinectDataUpdater _kinectDataUpdater;
         private IKinectTextureProvider _kinectTextureProvider;
-        private IKinectState _kinectState;
+        // private IKinectState _kinectState;
 
         public void Construct(
             KinectData kinectData,
             IKinectDataFileSaver kinectDataFileSaver,
             IKinectDataUpdater kinectDataUpdater,
             IKinectTextureProvider kinectTextureProvider,
-            IKinectState kinectState,
+            // IKinectState kinectState,
             Transform worldRoot,
             Transform operationRoot)
         {
             _kinectDataFileSaver = kinectDataFileSaver;
             _kinectDataUpdater = kinectDataUpdater;
             _kinectTextureProvider = kinectTextureProvider;
-            _kinectState = kinectState;
+            // _kinectState = kinectState;
             _kinectModel = new KinectModel(
                 kinectData.Id,
                 kinectData.Position,
@@ -76,7 +76,6 @@ namespace HRYooba.Kinect.Presentations.Kinects
         {
             // model event
             _kinectModel.Position.Subscribe(OnPositionChanged).AddTo(this);
-            _kinectModel.IsValid.Subscribe(OnIsValidChanged).AddTo(this);
             _kinectModel.EulerAngles.Subscribe(OnEulerAnglesChanged).AddTo(this);
             _kinectModel.MinDepthDistance.Subscribe(OnMinDepthDistanceChanged).AddTo(this);
             _kinectModel.MaxDepthDistance.Subscribe(OnMaxDepthDistanceChanged).AddTo(this);
@@ -89,8 +88,6 @@ namespace HRYooba.Kinect.Presentations.Kinects
             _kinectOperationPanel.OnMaxDepthDistanceChanged.Subscribe(_kinectModel.SetMaxDepthDistance).AddTo(this);
             _kinectOperationPanel.OnPointCloudButtonClicked.Subscribe(_ => _kinectModel.SetIsActivePointCloud(!_kinectModel.IsActivePointCloud.CurrentValue)).AddTo(this);
             _kinectOperationPanel.OnSaveButtonClicked.Subscribe(_ => _kinectDataFileSaver.Save()).AddTo(this);
-
-            Observable.EveryValueChanged(_kinectState, state => state.IsValid).Subscribe(_kinectModel.SetIsValid).AddTo(this);
         }
 
         private void SetViewId(string id)
@@ -120,12 +117,6 @@ namespace HRYooba.Kinect.Presentations.Kinects
             _kinectObject.SetPosition(position);
             _pointCloudViewer.SetPosition(position);
             _kinectOperationPanel.SetPosition(position);
-        }
-
-        private void OnIsValidChanged(bool isValid)
-        {
-            _kinectObject.SetIsValid(isValid);
-            _kinectOperationPanel.SetIsValid(isValid);
         }
 
         private void OnEulerAnglesChanged(Vector3 eulerAngles)

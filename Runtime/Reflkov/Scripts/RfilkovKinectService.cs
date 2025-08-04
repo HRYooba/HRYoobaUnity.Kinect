@@ -1,12 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using R3;
 using com.rfilkov.kinect;
 using HRYooba.Kinect.Core;
 using HRYooba.Kinect.Core.Services;
-using HRYooba.Kinect.Core.Repositories;
 
 namespace HRYooba.Kinect.Rfilkov
 {
@@ -17,18 +13,11 @@ namespace HRYooba.Kinect.Rfilkov
         private readonly KinectInterop.SensorData _sensorData;
         private readonly DepthSensorBase _depthSensor;
 
-        // repository
-        private readonly IAreaDataRepository _areaDataRepository;
-        private readonly IKinectDataRepository _kinectDataRepository;
-        private readonly IUserDataRepository _userDataRepository;
-
         // private fields
-        private readonly UserData.IdComparer _userDataIdComparer = new();
-        private readonly CompositeDisposable _disposables = new();
         private readonly BodyByBodyIndexTexture _bodyByBodyIndexTexture;
         private readonly RenderTexture _pointCloudTexture;
-        private UserData _primaryUserData;
         private ulong _lastBodyImageTime;
+        private ulong _primaryUserId;
 
         // public properties
         public Texture ColorTexture => _sensorData?.colorImageTexture;
@@ -37,27 +26,13 @@ namespace HRYooba.Kinect.Rfilkov
         public Texture BodyIndexTexture => _sensorData?.bodyImageTexture;
         public Texture PrimaryUserTexture => _bodyByBodyIndexTexture?.Texture;
         public Texture PointCloudTexture => _depthSensor?.pointCloudVertexTexture;
-        public UserData PrimaryUserData => _primaryUserData;
-        public bool IsValid => _sensorData != null;
 
-        public RfilkovKinectService(
-            string kinectId,
-            IAreaDataRepository areaDataRepository,
-            IKinectDataRepository kinectDataRepository,
-            IUserDataRepository userDataRepository)
+        public RfilkovKinectService(KinectInterop.SensorData sensorData, BodyTrackingSensorOrientationType bodyTrackingSensorOrientation)
         {
             _kinectManager = KinectManager.Instance;
-            if (!TryGetSensorData(kinectId, out var sensorData))
-            {
-                Debug.LogError($"[RfilkovKinectService] SensorData not found. SensorId: {kinectId}");
-                return;
-            }
             _sensorData = sensorData;
-            _depthSensor = (DepthSensorBase)_sensorData.sensorInterface;
 
-            _areaDataRepository = areaDataRepository;
-            _kinectDataRepository = kinectDataRepository;
-            _userDataRepository = userDataRepository;
+            _depthSensor = (DepthSensorBase)_sensorData.sensorInterface;
 
             _bodyByBodyIndexTexture = new BodyByBodyIndexTexture(
                 _sensorData.depthImageWidth,
@@ -73,12 +48,10 @@ namespace HRYooba.Kinect.Rfilkov
                 RenderTextureFormat.ARGBFloat
             );
 
-            var kinectData = _kinectDataRepository.Get(kinectId);
-
             // rfilkov.kinectの設定
             var kinectSensor = (Kinect4AzureInterface)_depthSensor;
             kinectSensor.StopBodyTracking(_sensorData);
-            kinectSensor.bodyTrackingSensorOrientation = kinectData.BodyTrackingSensorOrientation switch
+            kinectSensor.bodyTrackingSensorOrientation = bodyTrackingSensorOrientation switch
             {
                 BodyTrackingSensorOrientationType.Default => Microsoft.Azure.Kinect.Sensor.k4abt_sensor_orientation_t.K4ABT_SENSOR_ORIENTATION_DEFAULT,
                 BodyTrackingSensorOrientationType.Clockwise90 => Microsoft.Azure.Kinect.Sensor.k4abt_sensor_orientation_t.K4ABT_SENSOR_ORIENTATION_CLOCKWISE90,
@@ -89,64 +62,29 @@ namespace HRYooba.Kinect.Rfilkov
             kinectSensor.InitBodyTracking(kinectSensor.frameSourceFlags, _sensorData, kinectSensor.coordMapperCalib, true);
             _depthSensor.EnableDepthCameraColorFrame(_sensorData, true); // depthCamColorImageTexture, pointCloudTextureを有効にするために必要
             _depthSensor.pointCloudVertexTexture = _pointCloudTexture;
-
-            // Update
-            Observable.EveryUpdate(UnityFrameProvider.PreUpdate).Subscribe(_ => PreUpdate()).AddTo(_disposables);
-            Observable.EveryUpdate(UnityFrameProvider.Update).Subscribe(_ => Update()).AddTo(_disposables);
-            Observable.EveryUpdate(UnityFrameProvider.PreLateUpdate).Subscribe(_ => PreLateUpdate()).AddTo(_disposables);
         }
 
         public void Dispose()
         {
-            if (_disposables.IsDisposed) return;
-
-            _disposables.Dispose();
             _bodyByBodyIndexTexture?.Dispose();
 
             _pointCloudTexture?.Release();
             UnityEngine.Object.Destroy(_pointCloudTexture);
         }
 
-        private bool TryGetSensorData(string id, out KinectInterop.SensorData sensorData)
+        public void PreUpdate()
         {
-            var sensorCount = _kinectManager.GetSensorCount();
-            for (int i = 0; i < sensorCount; i++)
-            {
-                var data = _kinectManager.GetSensorData(i);
-                if (data.sensorId == id)
-                {
-                    sensorData = data;
-                    return true;
-                }
-            }
-
-            sensorData = null;
-            return false;
-        }
-
-        private void PreUpdate()
-        {
-            _primaryUserData = null;
+            _primaryUserId = 0;
             _lastBodyImageTime = _sensorData.lastBodyImageTime;
         }
 
-        private void Update()
-        {
-            ApplyKinectData();
-            UpdateUserDataRepository();
-            UpdatePrimaryUserData();
-        }
-
-        private void PreLateUpdate()
+        public void PreLateUpdate()
         {
             UpdateBodyByBodyIndexTexture();
         }
 
-        private void ApplyKinectData()
+        public void ApplyKinectData(KinectData kinectData)
         {
-            var sensorId = _sensorData.sensorId;
-            var kinectData = _kinectDataRepository.Get(sensorId);
-
             var position = kinectData.Position;
             var rotation = Quaternion.Euler(kinectData.EulerAngles);
             var minDepthDistance = kinectData.MinDepthDistance;
@@ -159,126 +97,18 @@ namespace HRYooba.Kinect.Rfilkov
             _bodyByBodyIndexTexture.SetDepthDistance(minDepthDistance, maxDepthDistance);
         }
 
-        private void UpdateUserDataRepository()
+        public void SetPrimaryUserId(ulong userId)
         {
-            var userIds = _kinectManager.GetAllUserIds();
-            var currentUserData = userIds.Select(id => ConvertToUserData(id, _kinectManager.GetUserBodyData(id))).Where(_ => _.Id != 0).ToArray();
-            var lastUserData = _userDataRepository.GetAll();
-            var newUserData = currentUserData.Except(lastUserData, _userDataIdComparer).ToArray();
-            var removedUserData = lastUserData.Except(currentUserData, _userDataIdComparer).ToArray();
-
-            foreach (var userData in newUserData)
-            {
-                _userDataRepository.Add(userData);
-            }
-
-            foreach (var userData in removedUserData)
-            {
-                _userDataRepository.Remove(userData.Id);
-            }
-
-            foreach (var userData in currentUserData)
-            {
-                _userDataRepository.Update(userData);
-            }
-        }
-
-        private void UpdatePrimaryUserData()
-        {
-            var getUserData = GetPrimaryUserData();
-            if (!Equals(getUserData, default(UserData)))
-            {
-                _primaryUserData = getUserData;
-            }
+            _primaryUserId = userId;
         }
 
         private void UpdateBodyByBodyIndexTexture()
         {
             if (_lastBodyImageTime != _sensorData.lastBodyImageTime) // BodyImageが更新されたら
             {
-                var userId = _primaryUserData?.Id ?? 0;
-                var bodyIndex = _kinectManager.GetBodyIndexByUserId(userId);
+                var bodyIndex = _kinectManager.GetBodyIndexByUserId(_primaryUserId);
                 _bodyByBodyIndexTexture.Update(bodyIndex, _sensorData.bodyIndexBuffer);
             }
-        }
-
-        private UserData GetPrimaryUserData()
-        {
-            var allUserData = _userDataRepository.GetAll();
-            var allAreaData = _areaDataRepository.GetAll();
-
-            // エリア内にいるユーザーを取得
-            var areaInUserData = new List<UserData>();
-            foreach (var userData in allUserData)
-            {
-                var userPos = new Vector2(userData.Position.x, userData.Position.z);
-
-                foreach (var areaData in allAreaData)
-                {
-                    var areaPos = new Vector2(areaData.Position.x, areaData.Position.z);
-                    if (Vector2.Distance(userPos, areaPos) < areaData.Radius)
-                    {
-                        areaInUserData.Add(userData);
-                        break;
-                    }
-                }
-            }
-
-            // エリア内にいるユーザーの中で最もセンサーに近いユーザーを取得
-            var kinectData = _kinectDataRepository.Get(_sensorData.sensorId);
-            var kinectPos = new Vector2(kinectData.Position.x, kinectData.Position.z);
-            var primaryUser = areaInUserData
-                .OrderBy(userData => Vector2.Distance(new Vector2(userData.Position.x, userData.Position.z), kinectPos))
-                .FirstOrDefault();
-
-            return primaryUser;
-        }
-
-        private UserData ConvertToUserData(ulong userId, KinectInterop.BodyData bodyData)
-        {
-            var id = userId;
-            var sensorTransform = _sensorData.sensorInterface.GetSensorTransform();
-
-            var position = _kinectManager.GetUserKinectPosition(userId, true);
-            position.x *= -1;
-            position = sensorTransform.TransformPoint(position);
-
-            var rotation = _kinectManager.GetUserOrientation(userId, false);
-            rotation = new Quaternion(rotation.x, rotation.y, -rotation.z, -rotation.w);
-            rotation = sensorTransform.rotation * rotation * Quaternion.Euler(0, 180, 0);
-            rotation = Quaternion.Euler(0, 180, 0) * rotation;
-
-            var joints = bodyData.joint.Select(data => ConvertToJointData(userId, data)).ToArray();
-
-            if (bodyData.liTrackingID != userId)
-            {
-                id = 0;
-            }
-
-            return new UserData(id, position, rotation, joints);
-        }
-
-        private JointData ConvertToJointData(ulong userId, KinectInterop.JointData jointData)
-        {
-            var sensorTransform = _sensorData.sensorInterface.GetSensorTransform();
-
-            var isTracked = _kinectManager.IsJointTracked(userId, jointData.jointType);
-
-            var joint = jointData.jointType;
-            var position = _kinectManager.GetJointKinectPosition(userId, joint, true);
-            position.x *= -1;
-            position = sensorTransform.TransformPoint(position);
-
-            var rotation = _kinectManager.GetJointOrientation(userId, joint, false);
-            var mirrorRotation = rotation;
-
-            rotation = new Quaternion(rotation.x, rotation.y, -rotation.z, -rotation.w);
-            rotation = sensorTransform.rotation * rotation * Quaternion.Euler(0, 180, 0);
-            rotation = Quaternion.Euler(0, 180, 0) * rotation;
-
-            mirrorRotation = Quaternion.Euler(0, 180, 0) * mirrorRotation;
-
-            return new JointData((JointData.JointType)joint, isTracked, position, rotation, mirrorRotation);
         }
 
         private class BodyByBodyIndexTexture : IDisposable
