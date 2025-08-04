@@ -23,28 +23,28 @@ namespace HRYooba.Kinect.Presentations.Kinects
         private IKinectDataFileSaver _kinectDataFileSaver;
         private IKinectDataUpdater _kinectDataUpdater;
         private IKinectTextureProvider _kinectTextureProvider;
-        // private IKinectState _kinectState;
 
         public void Construct(
             KinectData kinectData,
             IKinectDataFileSaver kinectDataFileSaver,
             IKinectDataUpdater kinectDataUpdater,
             IKinectTextureProvider kinectTextureProvider,
-            // IKinectState kinectState,
             Transform worldRoot,
             Transform operationRoot)
         {
             _kinectDataFileSaver = kinectDataFileSaver;
             _kinectDataUpdater = kinectDataUpdater;
             _kinectTextureProvider = kinectTextureProvider;
-            // _kinectState = kinectState;
             _kinectModel = new KinectModel(
                 kinectData.Id,
                 kinectData.Position,
                 kinectData.EulerAngles,
                 kinectData.MinDepthDistance,
                 kinectData.MaxDepthDistance,
-                (int)kinectData.BodyTrackingSensorOrientation);
+                (int)kinectData.BodyTrackingSensorOrientation,
+                kinectData.PrimaryUserAreaId
+            );
+
             _kinectObject = Instantiate(_kinectObjectPrefab, worldRoot);
             _pointCloudViewer = Instantiate(_pointCloudViewerPrefab, worldRoot);
             _kinectOperationPanel = Instantiate(_kinectOperationPanelPrefab, operationRoot);
@@ -96,7 +96,7 @@ namespace HRYooba.Kinect.Presentations.Kinects
             _kinectOperationPanel.SetIdText(id);
         }
 
-        private void SetBodyTrackingSensorOrientation(int orientation) 
+        private void SetBodyTrackingSensorOrientation(int orientation)
         {
             _kinectOperationPanel.SetBodyTrackingSensorOrientation(orientation);
         }
@@ -110,7 +110,8 @@ namespace HRYooba.Kinect.Presentations.Kinects
                     _kinectModel.EulerAngles.CurrentValue,
                     _kinectModel.MinDepthDistance.CurrentValue,
                     _kinectModel.MaxDepthDistance.CurrentValue,
-                    (BodyTrackingSensorOrientationType)_kinectModel.BodyTrackingSensorOrientation
+                    (BodyTrackingSensorOrientationType)_kinectModel.BodyTrackingSensorOrientation,
+                    _kinectModel.PrimaryUserAreaId
                 )
             );
 
@@ -128,7 +129,8 @@ namespace HRYooba.Kinect.Presentations.Kinects
                     eulerAngles,
                     _kinectModel.MinDepthDistance.CurrentValue,
                     _kinectModel.MaxDepthDistance.CurrentValue,
-                    (BodyTrackingSensorOrientationType)_kinectModel.BodyTrackingSensorOrientation
+                    (BodyTrackingSensorOrientationType)_kinectModel.BodyTrackingSensorOrientation,
+                    _kinectModel.PrimaryUserAreaId
                 )
             );
 
@@ -146,7 +148,8 @@ namespace HRYooba.Kinect.Presentations.Kinects
                     _kinectModel.EulerAngles.CurrentValue,
                     distance,
                     _kinectModel.MaxDepthDistance.CurrentValue,
-                    (BodyTrackingSensorOrientationType)_kinectModel.BodyTrackingSensorOrientation
+                    (BodyTrackingSensorOrientationType)_kinectModel.BodyTrackingSensorOrientation,
+                    _kinectModel.PrimaryUserAreaId
                 )
             );
 
@@ -162,7 +165,8 @@ namespace HRYooba.Kinect.Presentations.Kinects
                     _kinectModel.EulerAngles.CurrentValue,
                     _kinectModel.MinDepthDistance.CurrentValue,
                     distance,
-                    (BodyTrackingSensorOrientationType)_kinectModel.BodyTrackingSensorOrientation
+                    (BodyTrackingSensorOrientationType)_kinectModel.BodyTrackingSensorOrientation,
+                    _kinectModel.PrimaryUserAreaId
                 )
             );
             _kinectOperationPanel.SetMaxDepthDistance(distance);

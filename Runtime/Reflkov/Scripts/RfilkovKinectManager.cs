@@ -100,7 +100,7 @@ namespace HRYooba.Kinect.Rfilkov
             }
             _rfilkovKinectServices.Clear();
         }
-        
+
         private void OnApplicationQuit() => OnDestory();
 
         private void PreUpdate()
@@ -115,15 +115,15 @@ namespace HRYooba.Kinect.Rfilkov
         {
             UpdateUserDataRepository();
 
-            var userData = GetUserData(1);
             foreach (var pair in _rfilkovKinectServices)
             {
                 var kinectId = pair.Key;
                 var rfilkovKinectService = pair.Value;
                 var kinectData = _kinectDataRepository.Get(kinectId);
+                var primaryUserId = GetUserData(kinectData.PrimaryUserAreaId)?.Id ?? 0;
 
                 rfilkovKinectService.ApplyKinectData(kinectData);
-                rfilkovKinectService.SetPrimaryUserId(userData?.Id ?? 0);
+                rfilkovKinectService.SetPrimaryUserId(primaryUserId);
             }
         }
 
@@ -168,9 +168,9 @@ namespace HRYooba.Kinect.Rfilkov
                     areaInUserData.Add(userData);
                 }
             }
+            if (areaInUserData.Count == 0) return null;
 
             // area posから一番近い人を返す
-            if (areaInUserData.Count == 0) return null;
             var closestUserData = areaInUserData
                 .OrderBy(user => Vector2.Distance(areaPos, new Vector2(user.Position.x, user.Position.z)))
                 .FirstOrDefault();

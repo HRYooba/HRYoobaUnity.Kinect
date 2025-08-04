@@ -40,7 +40,8 @@ namespace HRYooba.Kinect.Services
                     setting.EulerAngles,
                     setting.MinDepthDistance,
                     setting.MaxDepthDistance,
-                    setting.BodyTrackingSensorOrientation);
+                    setting.BodyTrackingSensorOrientation,
+                    setting.PrimaryUserAreaId);
             }
 
             _repository.Clear();

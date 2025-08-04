@@ -8,6 +8,7 @@ namespace HRYooba.Kinect.Presentations.Kinects
     {
         public string Id { get; }
         public int BodyTrackingSensorOrientation { get; }
+        public int PrimaryUserAreaId { get; }
 
         private readonly ReactiveProperty<Vector3> _position = new();
         public ReadOnlyReactiveProperty<Vector3> Position => _position;
@@ -35,7 +36,8 @@ namespace HRYooba.Kinect.Presentations.Kinects
             Vector3 eulerAngles,
             float minDepthDistance,
             float maxDepthDistance,
-            int bodyTrackingSensorOrientation)
+            int bodyTrackingSensorOrientation,
+            int primaryUserAreaId)
         {
             Id = id;
             _position.Value = position;
@@ -43,6 +45,7 @@ namespace HRYooba.Kinect.Presentations.Kinects
             _minDepthDistance.Value = minDepthDistance;
             _maxDepthDistance.Value = maxDepthDistance;
             BodyTrackingSensorOrientation = bodyTrackingSensorOrientation;
+            PrimaryUserAreaId = primaryUserAreaId;
         }
 
         public void Dispose()

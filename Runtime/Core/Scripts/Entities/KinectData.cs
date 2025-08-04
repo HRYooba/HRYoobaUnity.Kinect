@@ -5,12 +5,13 @@ namespace HRYooba.Kinect.Core
     public class KinectData
     {
         public KinectData(
-            string id, 
-            Vector3 position, 
-            Vector3 eulerAngles, 
-            float minDepthDistance, 
-            float maxDepthDistance, 
-            BodyTrackingSensorOrientationType bodyTrackingSensorOrientation)
+            string id,
+            Vector3 position,
+            Vector3 eulerAngles,
+            float minDepthDistance,
+            float maxDepthDistance,
+            BodyTrackingSensorOrientationType bodyTrackingSensorOrientation,
+            int primaryUserAreaId)
         {
             Id = id;
             Position = position;
@@ -18,6 +19,7 @@ namespace HRYooba.Kinect.Core
             MinDepthDistance = minDepthDistance;
             MaxDepthDistance = maxDepthDistance;
             BodyTrackingSensorOrientation = bodyTrackingSensorOrientation;
+            PrimaryUserAreaId = primaryUserAreaId;
         }
 
         public string Id { get; }
@@ -26,5 +28,6 @@ namespace HRYooba.Kinect.Core
         public float MinDepthDistance { get; }
         public float MaxDepthDistance { get; }
         public BodyTrackingSensorOrientationType BodyTrackingSensorOrientation { get; }
+        public int PrimaryUserAreaId { get; }
     }
 }

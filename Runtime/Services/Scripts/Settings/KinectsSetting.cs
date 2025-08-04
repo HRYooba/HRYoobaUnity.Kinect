@@ -31,6 +31,9 @@ namespace HRYooba.Kinect.Services
 
             [JsonProperty("body_tracking_sensor_orientation")]
             public BodyTrackingSensorOrientationType BodyTrackingSensorOrientation { get; set; } = BodyTrackingSensorOrientationType.Default;
+
+            [JsonProperty("primary_user_area_id")]
+            public int PrimaryUserAreaId { get; set; } = 1;
         }
     }
 }
