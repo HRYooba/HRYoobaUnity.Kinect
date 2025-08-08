@@ -73,11 +73,13 @@ namespace HRYooba.Kinect.Core
                 case JointType.ShoulderLeft: return JointType.ShoulderRight;
                 case JointType.ElbowLeft: return JointType.ElbowRight;
                 case JointType.WristLeft: return JointType.WristRight;
+                case JointType.HandLeft: return JointType.HandRight;
 
                 case JointType.ClavicleRight: return JointType.ClavicleLeft;
                 case JointType.ShoulderRight: return JointType.ShoulderLeft;
                 case JointType.ElbowRight: return JointType.ElbowLeft;
                 case JointType.WristRight: return JointType.WristLeft;
+                case JointType.HandRight: return JointType.HandLeft;
 
                 case JointType.HipLeft: return JointType.HipRight;
                 case JointType.KneeLeft: return JointType.KneeRight;
@@ -88,6 +90,16 @@ namespace HRYooba.Kinect.Core
                 case JointType.KneeRight: return JointType.KneeLeft;
                 case JointType.AnkleRight: return JointType.AnkleLeft;
                 case JointType.FootRight: return JointType.FootLeft;
+
+                case JointType.EyeLeft: return JointType.EyeRight;
+                case JointType.EarLeft: return JointType.EarRight;
+                case JointType.EyeRight: return JointType.EyeLeft;
+                case JointType.EarRight: return JointType.EarLeft;
+
+                case JointType.HandtipLeft: return JointType.HandtipRight;
+                case JointType.ThumbLeft: return JointType.ThumbRight;
+                case JointType.HandtipRight: return JointType.HandtipLeft;
+                case JointType.ThumbRight: return JointType.ThumbLeft;
 
                 default: return type;
             }
