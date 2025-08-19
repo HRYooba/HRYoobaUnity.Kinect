@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using HRYooba.Library;
 using HRYooba.Kinect.Core;
@@ -10,6 +11,7 @@ namespace HRYooba.Kinect.Services
     {
         public const string JsonPath = "kinects_setting.json";
         private readonly IKinectDataRepository _repository;
+        private KinectsSetting _initialSetting;
 
         public KinectDataJsonManager(IKinectDataRepository repository)
         {
@@ -41,7 +43,8 @@ namespace HRYooba.Kinect.Services
                     setting.MinDepthDistance,
                     setting.MaxDepthDistance,
                     setting.BodyTrackingSensorOrientation,
-                    setting.PrimaryUserAreaId);
+                    setting.PrimaryUserAreaId
+                );
             }
 
             _repository.Clear();
@@ -49,28 +52,27 @@ namespace HRYooba.Kinect.Services
             {
                 _repository.Add(data);
             }
+
+            _initialSetting = json;
         }
 
         public void Save()
         {
+            var json = _initialSetting;
             var kinectData = _repository.GetAll();
-            var json = new KinectsSetting
+            
+            foreach (var setting in json.Settings)
             {
-                Settings = new KinectsSetting.Setting[kinectData.Length]
-            };
-
-            for (var i = 0; i < kinectData.Length; i++)
-            {
-                var data = kinectData[i];
-                json.Settings[i] = new KinectsSetting.Setting
+                var data = kinectData.FirstOrDefault(d => d.Id == setting.Id);
+                if (data != null)
                 {
-                    Id = data.Id,
-                    Position = data.Position,
-                    EulerAngles = data.EulerAngles,
-                    MinDepthDistance = data.MinDepthDistance,
-                    MaxDepthDistance = data.MaxDepthDistance,
-                    BodyTrackingSensorOrientation = data.BodyTrackingSensorOrientation
-                };
+                    setting.Position = data.Position;
+                    setting.EulerAngles = data.EulerAngles;
+                    setting.MinDepthDistance = data.MinDepthDistance;
+                    setting.MaxDepthDistance = data.MaxDepthDistance;
+                    setting.BodyTrackingSensorOrientation = data.BodyTrackingSensorOrientation;
+                    setting.PrimaryUserAreaId = data.PrimaryUserAreaId;
+                }
             }
 
             JsonHelper.Save(JsonPath, json);
