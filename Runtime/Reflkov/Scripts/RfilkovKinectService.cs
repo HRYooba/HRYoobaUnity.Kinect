@@ -90,7 +90,8 @@ namespace HRYooba.Kinect.Rfilkov
             var minDepthDistance = kinectData.MinDepthDistance;
             var maxDepthDistance = kinectData.MaxDepthDistance;
 
-            _sensorData.sensorInterface.SetSensorToWorldMatrix(position, rotation, true);
+            // _sensorData.sensorInterface.SetSensorToWorldMatrix(position, rotation, true); // BodySpinの設定するとバグるため
+            _sensorData.sensorInterface.GetSensorTransform().SetPositionAndRotation(position, rotation);
             _depthSensor.minDepthDistance = minDepthDistance;
             _depthSensor.maxDepthDistance = maxDepthDistance;
 

@@ -307,10 +307,12 @@ namespace HRYooba.Kinect.Rfilkov
             position.x *= -1;
             position = sensorTransform.TransformPoint(position);
 
-            var rotation = _kinectManager.GetUserOrientation(userId, false);
-            rotation = new Quaternion(rotation.x, rotation.y, -rotation.z, -rotation.w);
-            rotation = sensorTransform.rotation * rotation * Quaternion.Euler(0, 180, 0);
-            rotation = Quaternion.Euler(0, 180, 0) * rotation;
+            // var rotation = _kinectManager.GetUserOrientation(userId, false);
+            // rotation = new Quaternion(rotation.x, rotation.y, -rotation.z, -rotation.w);
+            // rotation = sensorTransform.rotation * rotation * Quaternion.Euler(0, 180, 0);
+            // rotation = Quaternion.Euler(0, 180, 0) * rotation;
+
+            var rotation = _kinectManager.GetUserOrientation(userId, true);
 
             var joints = bodyData.joint.Select(data => ConvertToJointData(userId, sensorData, data)).ToArray();
 
@@ -333,14 +335,17 @@ namespace HRYooba.Kinect.Rfilkov
             position.x *= -1;
             position = sensorTransform.TransformPoint(position);
 
-            var rotation = _kinectManager.GetJointOrientation(userId, joint, false);
-            var mirrorRotation = rotation;
+            // var rotation = _kinectManager.GetJointOrientation(userId, joint, false);
+            // var mirrorRotation = rotation;
 
-            rotation = new Quaternion(rotation.x, rotation.y, -rotation.z, -rotation.w);
-            rotation = sensorTransform.rotation * rotation * Quaternion.Euler(0, 180, 0);
-            rotation = Quaternion.Euler(0, 180, 0) * rotation;
+            // rotation = new Quaternion(rotation.x, rotation.y, -rotation.z, -rotation.w);
+            // rotation = sensorTransform.rotation * rotation * Quaternion.Euler(0, 180, 0);
+            // rotation = Quaternion.Euler(0, 180, 0) * rotation;
 
-            mirrorRotation = Quaternion.Euler(0, 180, 0) * mirrorRotation;
+            // mirrorRotation = Quaternion.Euler(0, 180, 0) * mirrorRotation;
+
+            var rotation = _kinectManager.GetJointOrientation(userId, joint, true);
+            var mirrorRotation = _kinectManager.GetJointOrientation(userId, joint, false);
 
             return new JointData((JointData.JointType)joint, isTracked, position, rotation, mirrorRotation);
         }

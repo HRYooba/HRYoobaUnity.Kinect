@@ -8,13 +8,14 @@ namespace HRYooba.Kinect
     {
         private Animator _animator;
         private Dictionary<HumanBodyBones, Quaternion> _initBoneRotations = new();
+        private Quaternion _initRotation;
 
         private void Awake()
         {
             _animator = GetComponent<Animator>();
 
-            var parentRotation = transform.parent.rotation;
-            transform.parent.rotation = Quaternion.identity;
+            _initRotation = transform.rotation;
+            transform.rotation = Quaternion.identity;
 
             // 初期姿勢を保存
             foreach (var bone in BoneData.BoneMap.Keys)
@@ -22,14 +23,14 @@ namespace HRYooba.Kinect
                 _initBoneRotations[bone] = _animator.GetBoneTransform(bone).rotation;
             }
 
-            transform.parent.rotation = parentRotation;
+            transform.rotation = _initRotation;
         }
 
         private void OnEnable()
         {
             foreach (var bone in BoneData.BoneMap.Keys)
             {
-                _animator.GetBoneTransform(bone).rotation = transform.parent.rotation * _initBoneRotations[bone];
+                _animator.GetBoneTransform(bone).rotation = _initRotation * _initBoneRotations[bone];
             }
         }
 
