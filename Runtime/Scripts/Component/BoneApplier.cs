@@ -4,8 +4,11 @@ using UnityEngine;
 
 namespace HRYooba.Kinect
 {
+    [RequireComponent(typeof(Animator))]
     public class BoneApplier : MonoBehaviour
     {
+        [SerializeField] private float _smoothFactor = 10.0f;
+
         private Animator _animator;
         private Dictionary<HumanBodyBones, Quaternion> _initBoneRotations = new();
         private Quaternion _initRotation;
@@ -50,7 +53,7 @@ namespace HRYooba.Kinect
                 newRotation = transform.rotation * newRotation;
 
                 var nowRotation = _animator.GetBoneTransform(humanBone).rotation;
-                _animator.GetBoneTransform(humanBone).rotation = Quaternion.Lerp(nowRotation, newRotation, Time.deltaTime * 10);
+                _animator.GetBoneTransform(humanBone).rotation = Quaternion.Lerp(nowRotation, newRotation, Time.deltaTime * _smoothFactor);
             }
         }
 

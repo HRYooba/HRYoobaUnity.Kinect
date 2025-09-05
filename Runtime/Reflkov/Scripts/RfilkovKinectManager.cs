@@ -302,19 +302,21 @@ namespace HRYooba.Kinect.Rfilkov
             var sensorIndex = _kinectManager.GetUserBodyData(userId).sensorIndex;
             var sensorData = _kinectManager.GetSensorData(sensorIndex);
             var sensorTransform = sensorData.sensorInterface.GetSensorTransform();
+            var effectiveSensorRotation = Quaternion.Euler(
+                -sensorTransform.rotation.eulerAngles.x,
+                sensorTransform.rotation.eulerAngles.y,
+                sensorTransform.rotation.eulerAngles.z
+            );
+            effectiveSensorRotation = Quaternion.Euler(0, 180, 0) * effectiveSensorRotation;
 
             var position = _kinectManager.GetUserKinectPosition(userId, true);
             position.x *= -1;
             position = sensorTransform.TransformPoint(position);
 
-            // var rotation = _kinectManager.GetUserOrientation(userId, false);
-            // rotation = new Quaternion(rotation.x, rotation.y, -rotation.z, -rotation.w);
-            // rotation = sensorTransform.rotation * rotation * Quaternion.Euler(0, 180, 0);
-            // rotation = Quaternion.Euler(0, 180, 0) * rotation;
-
             var rotation = _kinectManager.GetUserOrientation(userId, true);
+            rotation = effectiveSensorRotation * rotation;
 
-            var joints = bodyData.joint.Select(data => ConvertToJointData(userId, sensorData, data)).ToArray();
+            var joints = bodyData.joint.Select(data => ConvertToJointData(userId, sensorTransform, data)).ToArray();
 
             if (bodyData.liTrackingID != userId)
             {
@@ -324,9 +326,14 @@ namespace HRYooba.Kinect.Rfilkov
             return new UserData(id, position, rotation, joints);
         }
 
-        private JointData ConvertToJointData(ulong userId, KinectInterop.SensorData sensorData, KinectInterop.JointData jointData)
+        private JointData ConvertToJointData(ulong userId, Transform sensorTransform, KinectInterop.JointData jointData)
         {
-            var sensorTransform = sensorData.sensorInterface.GetSensorTransform();
+            var effectiveSensorRotation = Quaternion.Euler(
+                -sensorTransform.rotation.eulerAngles.x,
+                sensorTransform.rotation.eulerAngles.y,
+                sensorTransform.rotation.eulerAngles.z
+            );
+            effectiveSensorRotation = Quaternion.Euler(0, 180, 0) * effectiveSensorRotation;
 
             var isTracked = _kinectManager.IsJointTracked(userId, jointData.jointType);
 
@@ -335,17 +342,11 @@ namespace HRYooba.Kinect.Rfilkov
             position.x *= -1;
             position = sensorTransform.TransformPoint(position);
 
-            // var rotation = _kinectManager.GetJointOrientation(userId, joint, false);
-            // var mirrorRotation = rotation;
-
-            // rotation = new Quaternion(rotation.x, rotation.y, -rotation.z, -rotation.w);
-            // rotation = sensorTransform.rotation * rotation * Quaternion.Euler(0, 180, 0);
-            // rotation = Quaternion.Euler(0, 180, 0) * rotation;
-
-            // mirrorRotation = Quaternion.Euler(0, 180, 0) * mirrorRotation;
-
             var rotation = _kinectManager.GetJointOrientation(userId, joint, true);
+            rotation = effectiveSensorRotation * rotation;
+
             var mirrorRotation = _kinectManager.GetJointOrientation(userId, joint, false);
+            mirrorRotation = effectiveSensorRotation * mirrorRotation;
 
             return new JointData((JointData.JointType)joint, isTracked, position, rotation, mirrorRotation);
         }
